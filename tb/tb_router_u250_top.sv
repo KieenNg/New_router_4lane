@@ -57,7 +57,7 @@ module tb_router_u250_top();
         .router_start_req(router_start_req)
     );
     localparam CLOCK_PERIOD = 3.333;
-    localparam GT_CLOCK = 6.4;
+    localparam GT_CLOCK = 5;
     assign GT_SERIAL_RX_rxn = GT_SERIAL_TX_txn;
     assign GT_SERIAL_RX_rxp = GT_SERIAL_TX_txp;
     
@@ -129,7 +129,7 @@ module tb_router_u250_top();
 //        drive_router(10'h4, 10'h9, 0);
         
         
-        //`include "instructions.vh"
+        `include "instructions.vh"
         drive_router(10'h5, 10'hf, 1);
 
         total_data_bits = 1024.0 * num_transmissions;
@@ -150,6 +150,6 @@ module tb_router_u250_top();
     end
      initial begin
          $monitor("Time=%0t | dest_addr = 0x%h| data_arbiter_recv = 0x%h", 
-             $time, router_u250_top_sim_i.system_wrapper_i.system_i.arbiter_bram_0.dst_addr, router_u250_top_sim_i.system_wrapper_i.system_i.arbiter_bram_0.data_arbiter_recv);
+             $time, router_u250_top_sim_i.router_4lane_wrapper_i.router_4lane_i.arbiter_bram_0.dst_addr, router_u250_top_sim_i.router_4lane_wrapper_i.router_4lane_i.arbiter_bram_0.data_arbiter_recv);
      end
 endmodule

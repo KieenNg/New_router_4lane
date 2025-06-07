@@ -64,7 +64,7 @@ always @(*) begin
             next_state = HEADER_MODIFY;
         end
         HEADER_MODIFY: begin
-            if(data_port1_before[8:7] > 1) begin
+            if(data_port1_before[6:5] > 1) begin
                 next_state = WRITE_OUTPUT_01;
             end
             else begin
@@ -149,10 +149,10 @@ always @(posedge clk or negedge rst_n) begin
                 data_port1_before_reg <= 0;
             end
             HEADER_MODIFY: begin
-                if(data_port1_before[8:7] > 1'b1) begin
-                    data_port1_before_reg[8:7] <= data_port1_before[8:7] - 1'b1;
-                    data_port1_before_reg[63:9] <= data_port1_before[63:9];
-                    data_port1_before_reg[6:0] <= data_port1_before[6:0];
+                if(data_port1_before[6:5] > 1'b1) begin
+                    data_port1_before_reg[6:5] <= data_port1_before[6:5] - 1'b1;
+                    data_port1_before_reg[255:7] <= data_port1_before[255:7];
+                    data_port1_before_reg[4:0] <= data_port1_before[4:0];
                 end
                 else begin
                     data_port1_before_reg <= data_port1_before;

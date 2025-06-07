@@ -38,7 +38,7 @@ module router_u250_top_sim(
 wire init_clk;
 reg pma_init = 1'b1;
 reg reset_pb = 1'b1;
-system_wrapper system_wrapper_i(
+router_4lane_wrapper router_4lane_wrapper_i(
     .router_done(router_done),
     .router_dst_addr(router_dst_addr),
     .router_scr_addr(router_scr_addr),

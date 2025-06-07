@@ -136,13 +136,13 @@ always @(posedge clk or negedge rst_n) begin
             end
             READ_ARBITER_DELAY: begin
                 arbiter_read_req <= 1;
-                arbiter_src_addr <= router_dst_addr_reg;
-                data_arbiter_send_reg <= data_arbiter_send_reg;
+                arbiter_src_addr <= router_scr_addr_reg;
+                data_arbiter_send_reg <= data_arbiter_send;
             end
             default: begin
                 arbiter_read_req <= 0;
-                arbiter_src_addr <= router_dst_addr_reg;
-                data_arbiter_send_reg <= data_arbiter_send_reg;
+                arbiter_src_addr <= router_scr_addr_reg;
+                data_arbiter_send_reg <= data_arbiter_send;
             end
         endcase
     end
@@ -160,7 +160,7 @@ always @(posedge clk or negedge rst_n) begin
         case (current_state)
             START_ENCODE_PKT: begin
                 start_encode_pkt <= 1;
-                data_dfx_send <= {data_arbiter_send, router_dst_addr_reg};
+                data_dfx_send <= {data_arbiter_send, router_dst_addr_reg};;
             end
             ENCODE_PKT: begin
                 start_encode_pkt <= 0;

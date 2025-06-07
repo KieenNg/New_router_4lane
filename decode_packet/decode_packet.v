@@ -69,7 +69,7 @@ reg valid_dfx_data_reg;
 reg [1:0] src_router;
 reg [$clog2(NUMBER_PACKET) - 1:0] pkt_number;
 always @(*) begin
-    pkt_number = data_recv_reg[6:2];
+    pkt_number = data_recv_reg[4:2];
     src_router = data_recv_reg[1:0];
 end
 
@@ -113,37 +113,37 @@ always @(posedge clk or negedge rst_n) begin
                 case(src_router)
                     ROUTER_0: begin
                         if (pkt_number < NUMBER_PACKET - 1) begin
-                            data_dfx_recv_router_0[pkt_number*247 +: 247] <= data_recv_reg[255:9];
+                            data_dfx_recv_router_0[pkt_number*249 +: 249] <= data_recv_reg[255:7];
                             valid_dfx_data_reg <= 0;
                         end else begin
-                            data_dfx_recv_router_0[1033:988] <= data_recv_reg[54:9];
+                            data_dfx_recv_router_0[1033:996] <= data_recv_reg[44:7];
                             valid_dfx_data_reg <= 1;
                         end
                     end
                     ROUTER_1: begin
                         if (pkt_number < NUMBER_PACKET - 1) begin
-                            data_dfx_recv_router_1[pkt_number*247 +: 247] <= data_recv_reg[255:9];
+                            data_dfx_recv_router_1[pkt_number*249 +: 249] <= data_recv_reg[255:7];
                             valid_dfx_data_reg <= 0;
                         end else begin
-                            data_dfx_recv_router_1[1033:988] <= data_recv_reg[54:9];
+                            data_dfx_recv_router_1[1033:996] <= data_recv_reg[44:7];
                             valid_dfx_data_reg <= 1;
                         end
                     end
                     ROUTER_2: begin
                         if (pkt_number < NUMBER_PACKET - 1) begin
-                            data_dfx_recv_router_2[pkt_number*247 +: 247] <= data_recv_reg[255:9];
+                            data_dfx_recv_router_2[pkt_number*249 +: 249] <= data_recv_reg[255:7];
                             valid_dfx_data_reg <= 0;
                         end else begin
-                            data_dfx_recv_router_2[1033:988] <= data_recv_reg[54:9];
+                            data_dfx_recv_router_2[1033:996] <= data_recv_reg[44:7];
                             valid_dfx_data_reg <= 1;
                         end
                     end
                     ROUTER_3: begin
                         if (pkt_number < NUMBER_PACKET - 1) begin
-                            data_dfx_recv_router_3[pkt_number*247 +: 247] <= data_recv_reg[255:9];
+                            data_dfx_recv_router_3[pkt_number*249 +: 249] <= data_recv_reg[255:7];
                             valid_dfx_data_reg <= 0;
                         end else begin
-                            data_dfx_recv_router_3[1033:988] <= data_recv_reg[54:9];
+                            data_dfx_recv_router_3[1033:996] <= data_recv_reg[44:7];
                             valid_dfx_data_reg <= 1;
                         end
                     end

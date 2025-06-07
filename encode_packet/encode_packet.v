@@ -3,7 +3,7 @@ module encode_packet
     parameter DATA_WIDTH = 1024,
     parameter ADDR_WIDTH = 10,
     parameter DATA_DFX_WIDTH = DATA_WIDTH + ADDR_WIDTH,
-    parameter NUMBER_PACKET = 19,
+    parameter NUMBER_PACKET = 5,
     parameter AURORA_DATA_WIDTH = 256
 )(
     input                                   clk,
@@ -19,7 +19,7 @@ module encode_packet
 );
 reg [1:0] TTL = 2'b10;
 reg [1:0] src_router = 2'b00;
-reg [4:0] pkt_number;
+reg [2:0] pkt_number;
 
 reg [1:0] current_state;
 reg [1:0] next_state;
@@ -105,13 +105,13 @@ always @(posedge clk or negedge rst_n) begin
         case (current_state)
             ENCODE_PKT: begin
                 encode_valid <= 1;
-                if(pkt_number == NUMBER_PACKET - 1) begin
+                if(pkt_number == 4) begin
                     pkt_number <= 0;
-                    data_send <= {201'b0, data_dfx_send_reg[1033:988], TTL, pkt_number, src_router};
+                    data_send <= {211'h0, data_dfx_send_reg[1033:996], TTL, pkt_number, src_router};
                 end
                 else begin
                     pkt_number <= pkt_number + 1;
-                    data_send <= {data_dfx_send_reg[pkt_number*247 +: 247], TTL, pkt_number, src_router};
+                    data_send <= {data_dfx_send_reg[pkt_number*249 +: 249], TTL, pkt_number, src_router};
                 end
             end
             default: begin
