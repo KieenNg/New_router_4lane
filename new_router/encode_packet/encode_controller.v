@@ -160,7 +160,7 @@ always @(posedge clk or negedge rst_n) begin
         case (current_state)
             START_ENCODE_PKT: begin
                 start_encode_pkt <= 1;
-                data_dfx_send <= {data_arbiter_send, router_dst_addr_reg};;
+                data_dfx_send <= {data_arbiter_send, router_dst_addr_reg};
             end
             ENCODE_PKT: begin
                 start_encode_pkt <= 0;
