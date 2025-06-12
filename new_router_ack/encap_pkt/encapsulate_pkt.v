@@ -30,6 +30,7 @@ reg [1:0] next_state;
 localparam IDLE = 2'b00;
 localparam ENCAP_PKT = 2'b01;
 localparam DONE = 2'b10;
+localparam REPLAY_PKT_SENT = 2'b11;
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         current_state <= IDLE;
@@ -54,6 +55,8 @@ always @(*) begin
         IDLE: begin
             if (start_encap_pkt && !start_encap_pkt_prev) begin
                 next_state = ENCAP_PKT;
+            end else if(replay_pkt_sent) begin
+                next_state = REPLAY_PKT_SENT;
             end
             else begin
                 next_state = IDLE;
@@ -63,6 +66,9 @@ always @(*) begin
             next_state = DONE;
         end
         DONE: begin
+            next_state = IDLE;
+        end
+        REPLAY_PKT_SENT: begin
             next_state = IDLE;
         end
         default: next_state = IDLE;
@@ -119,30 +125,31 @@ end
  * Output logic: send controller interface and fragment_pkt interface
 **************************************************************/
 reg [PKT_WIDTH - 1:0] pkt_data_reg;
+reg valid_pkt_send_reg;
 reg ack_pkt_sent = 0;
 reg rn_pkt_sent = 0;
 always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
         done_encap_pkt <= 0;
         pkt_data_reg <= 0;
-        valid_pkt_send <= 0;
+        valid_pkt_send_reg <= 0;
     end
     else begin
         case (current_state)
             ENCAP_PKT: begin
                 done_encap_pkt <= 0;
                 pkt_data_reg <= {dfx_data_reg, ack_pkt_sent, rn_pkt_sent, pkt_sn_reg, pkt_dst_dfx_reg, pkt_src_dfx_reg};
-                valid_pkt_send <= 0;
+                valid_pkt_send_reg <= 1;
             end
             DONE: begin
                 done_encap_pkt <= 1;
                 pkt_data_reg <= pkt_data_reg;
-                valid_pkt_send <= 1;
+                valid_pkt_send_reg <= 0;
             end
             default: begin
                 done_encap_pkt <= 0;
                 pkt_data_reg <= pkt_data_reg;
-                valid_pkt_send <= 0;
+                valid_pkt_send_reg <= 0;
             end
         endcase
     end
@@ -150,14 +157,21 @@ end
 always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
         pkt_data <= 0;
+        valid_pkt_send <= 0;
     end
     else begin
         case (current_state)
             DONE: begin
                 pkt_data <= pkt_data_reg;
+                valid_pkt_send <= valid_pkt_send_reg;
+            end
+            REPLAY_PKT_SENT: begin
+                pkt_data <= pkt_data_reg;
+                valid_pkt_send <= 1; // Replay packet is sent, so we keep sending the last packet
             end
             default: begin
                 pkt_data <= pkt_data;
+                valid_pkt_send <= 0;
             end
         endcase
     end

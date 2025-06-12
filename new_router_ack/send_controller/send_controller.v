@@ -41,12 +41,31 @@ localparam ROUTER1 = 2'b01;
 localparam ROUTER2 = 2'b10;
 localparam ROUTER3 = 2'b11;
 
+reg [SEQ_NUM_WIDTH - 1:0] router0_rn_ack_pkt;
+reg [SEQ_NUM_WIDTH - 1:0] router1_rn_ack_pkt;
+reg [SEQ_NUM_WIDTH - 1:0] router2_rn_ack_pkt;
+reg [SEQ_NUM_WIDTH - 1:0] router3_rn_ack_pkt;
+
+reg [SEQ_NUM_WIDTH - 1:0] router0_sn_send;
+reg [SEQ_NUM_WIDTH - 1:0] router1_sn_send;
+reg [SEQ_NUM_WIDTH - 1:0] router2_sn_send;
+reg [SEQ_NUM_WIDTH - 1:0] router3_sn_send;
+reg [SEQ_NUM_WIDTH - 1:0] router0_sn_send_next;
+reg [SEQ_NUM_WIDTH - 1:0] router1_sn_send_next;
+reg [SEQ_NUM_WIDTH - 1:0] router2_sn_send_next;
+reg [SEQ_NUM_WIDTH - 1:0] router3_sn_send_next;
+
+
+
 reg [2:0] current_state;
 reg [2:0] next_state;
 localparam IDLE = 3'b000;
 localparam GET_DFX_DATA = 3'b001;
 localparam ENCAP_PKT = 3'b010;
 localparam FRAG_PKT = 3'b011;
+localparam WAIT_ACK_PKT = 3'b100;
+localparam REPLAY_SENT_PKT = 3'b101;
+
 // State register
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
@@ -96,11 +115,58 @@ always @(*) begin
         end
         FRAG_PKT: begin
             if (frag_pkt_done) begin
-                next_state = IDLE;
+                next_state = WAIT_ACK_PKT;
             end
             else begin
                 next_state = FRAG_PKT;
             end
+        end
+        WAIT_ACK_PKT: begin
+            if (valid_ack_pkt) begin
+                case(src_dfx_ack_pkt)
+                    ROUTER0: begin
+                        if (router0_rn_ack_pkt == router0_sn_send) begin
+                            next_state = REPLAY_SENT_PKT;
+                        end
+                        else begin
+                            next_state = IDLE;
+                        end
+                    end
+                    ROUTER1: begin
+                        if (router1_rn_ack_pkt == router1_sn_send) begin
+                            next_state = REPLAY_SENT_PKT;
+                        end
+                        else begin
+                            next_state = IDLE;
+                        end
+                    end
+                    ROUTER2: begin
+                        if (router2_rn_ack_pkt == router2_sn_send) begin
+                            next_state = REPLAY_SENT_PKT;
+                        end
+                        else begin
+                            next_state = IDLE;
+                        end
+                    end
+                    ROUTER3: begin
+                        if (router3_rn_ack_pkt == router3_sn_send) begin
+                            next_state = REPLAY_SENT_PKT;
+                        end
+                        else begin
+                            next_state = IDLE;
+                        end
+                    end
+                    default: begin
+                        next_state = IDLE; // Default case if no valid source DFX
+                    end
+                endcase
+            end
+            else begin
+                next_state = WAIT_ACK_PKT;
+            end
+        end
+        REPLAY_SENT_PKT: begin
+            next_state = FRAG_PKT;
         end
         default: begin
             next_state = IDLE;
@@ -178,10 +244,7 @@ end
 /***************************************************************
  * Output logic: recv controller interface
  **************************************************************/
-reg [SEQ_NUM_WIDTH - 1:0] router0_rn_ack_pkt;
-reg [SEQ_NUM_WIDTH - 1:0] router1_rn_ack_pkt;
-reg [SEQ_NUM_WIDTH - 1:0] router2_rn_ack_pkt;
-reg [SEQ_NUM_WIDTH - 1:0] router3_rn_ack_pkt;
+
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         router0_rn_ack_pkt <= 0;
@@ -224,16 +287,33 @@ always @(posedge clk or negedge rst_n) begin
                 end
             endcase
         end
+        else begin
+            router0_rn_ack_pkt <= router0_rn_ack_pkt;
+            router1_rn_ack_pkt <= router1_rn_ack_pkt;
+            router2_rn_ack_pkt <= router2_rn_ack_pkt;
+            router3_rn_ack_pkt <= router3_rn_ack_pkt;
+        end
     end
 end
 
 /***************************************************************
  * Output logic: encapsulate packet interface
  **************************************************************/
-reg [SEQ_NUM_WIDTH - 1:0] router0_sn_send;
-reg [SEQ_NUM_WIDTH - 1:0] router1_sn_send;
-reg [SEQ_NUM_WIDTH - 1:0] router2_sn_send;
-reg [SEQ_NUM_WIDTH - 1:0] router3_sn_send;
+
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        router0_sn_send <= 0;
+        router1_sn_send <= 0;
+        router2_sn_send <= 0;
+        router3_sn_send <= 0;
+    end
+    else begin
+        router0_sn_send <= router0_sn_send_next;
+        router1_sn_send <= router1_sn_send_next;
+        router2_sn_send <= router2_sn_send_next;
+        router3_sn_send <= router3_sn_send_next;
+    end
+end
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         router0_sn_send <= 0;

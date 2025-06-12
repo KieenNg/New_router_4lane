@@ -53,11 +53,22 @@ module tb_system();
          router_dst_addr = 10'h5;
          router_src_dfx = 2'b01;
          router_dst_dfx = 2'b10;
-//         repeat(2) @(posedge clk);
-//         router_start_req = 0;
-//         router_scr_addr = 10'h0;
-//         router_dst_addr = 10'h0;
+         repeat(2) @(posedge clk);
+         router_start_req = 0;
+         router_scr_addr = 10'h0;
+         router_dst_addr = 10'h0;
+         repeat(50) @(posedge clk);
+         router_start_req = 1;
+         router_scr_addr = 10'h0;
+         router_dst_addr = 10'h7;
+         router_src_dfx = 2'b01;
+         router_dst_dfx = 2'b11;
          repeat(500) @(posedge clk);
          $finish;
      end 
+     
+     initial begin
+         $monitor("Time=%0t | dest_addr = 0x%h| data_arbiter_recv = 0x%h", 
+             $time, system_wrapper_i.system_i.reassembly_pkt_0.inst.data_dfx_recv[9:0], system_wrapper_i.system_i.reassembly_pkt_0.inst.data_dfx_recv[1033:10]);
+     end
 endmodule
