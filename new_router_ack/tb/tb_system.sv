@@ -21,6 +21,7 @@
 
 
 module tb_system();
+  reg [1:0] src_router = 2'b01;
   reg clk;
   reg [9:0]router_scr_addr;
   reg [9:0]router_dst_addr;
@@ -56,7 +57,7 @@ module tb_system();
 //         router_start_req = 0;
 //         router_scr_addr = 10'h0;
 //         router_dst_addr = 10'h0;
-         repeat(50) @(posedge clk);
+         repeat(500) @(posedge clk);
          $finish;
      end 
 endmodule
