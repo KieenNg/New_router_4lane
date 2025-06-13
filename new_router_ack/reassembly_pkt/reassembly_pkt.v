@@ -27,7 +27,7 @@ module reassembly_pkt
     output reg [DFX_WIDTH - 1:0] dst_dfx_recv, //khong quan tam
     output reg [SEQ_NUM_WIDTH - 1:0] pkt_sn_recv,
     output reg [SEQ_NUM_WIDTH - 1:0] pkt_rn_recv
-    //input ready_processing
+    //input ready_receive_pkt
 );
 localparam IDLE = 3'b000;
 localparam READ_FIFO = 3'b001;
@@ -50,11 +50,11 @@ always @(posedge clk or negedge rst_n) begin
         current_state <= next_state;    
     end
 end
-reg ready_processing = 1;
+reg ready_receive_pkt = 1;
 always @(*) begin
     case(current_state)
         IDLE: begin
-            if(!empty_frag_fifo && ready_processing) begin
+            if(!empty_frag_fifo && ready_receive_pkt) begin
                 next_state = READ_FIFO;
             end else begin
                 next_state = IDLE;
@@ -95,7 +95,7 @@ always @(posedge clk or negedge rst_n) begin
     else begin
         case(current_state)
             IDLE: begin
-                if(!empty_frag_fifo && read_processing) begin
+                if(!empty_frag_fifo && ready_receive_pkt) begin
                     rd_frag_fifo <= 1'b1;
                 end else begin
                     rd_frag_fifo <= 1'b0;
