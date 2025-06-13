@@ -34,7 +34,7 @@ module tb_sim2router(
     wire valid_v_recv_1;
     wire [9:0]src_dfx_1;
     reg check_recv_done_1;
-    
+    //wire router_send_done_1;
     
     
     reg router2_start_req;
@@ -45,6 +45,7 @@ module tb_sim2router(
     wire valid_v_recv_2;
     wire [9:0]src_dfx_2;
     reg check_recv_done_2;
+    //wire router_send_done_2;
     
     sim2router_wrapper sim2router_wrapper_i(
         .*
