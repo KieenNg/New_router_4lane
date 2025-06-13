@@ -34,6 +34,8 @@ localparam READ_FIFO = 3'b001;
 localparam READ_FIFO_DELAY = 3'b010;
 localparam REASSEMBLY_PKT = 3'b011;
 localparam REASSEMBLY_PKT_DONE = 3'b100;
+localparam PROCESS_ACK_PKT = 3'b101;
+localparam PROCESS_ACK_PKT_DONE = 3'b110;
 reg [2:0] current_state;
 reg [2:0] next_state;
 
@@ -64,12 +66,18 @@ always @(*) begin
             next_state = READ_FIFO_DELAY;
         end
         READ_FIFO_DELAY: begin
-            next_state = REASSEMBLY_PKT;
+            next_state = (frag_recv[15:15] == 1 && frag_recv[6:4] == 0) ? PROCESS_ACK_PKT : REASSEMBLY_PKT;
         end
         REASSEMBLY_PKT: begin
             next_state = REASSEMBLY_PKT_DONE;
         end
         REASSEMBLY_PKT_DONE: begin
+            next_state = IDLE;
+        end
+        PROCESS_ACK_PKT: begin
+            next_state = PROCESS_ACK_PKT_DONE;
+        end
+        PROCESS_ACK_PKT_DONE: begin
             next_state = IDLE;
         end
         default: next_state = IDLE;
@@ -323,13 +331,21 @@ always @(posedge clk or negedge rst_n) begin
                     end
                     default: begin
                         valid_pkt_recv <= 0;
-                        type_pkt <= 0;
+                        type_pkt <= NOT_ACK_PKT;
                         src_dfx_recv <= 0;
                         dst_dfx_recv <= 0;
                         pkt_sn_recv <= 0;
                         pkt_rn_recv <= 0;
                     end
                 endcase
+            end
+            PROCESS_ACK_PKT: begin
+                valid_pkt_recv <= 1;
+                type_pkt <= ACK_PKT;
+                src_dfx_recv <= frag_recv[10:9];
+                dst_dfx_recv <= frag_recv[12:11];
+                pkt_sn_recv <= frag_recv[13:13];
+                pkt_rn_recv <= frag_recv[14:14];
             end
             default: begin
                 valid_pkt_recv <= 0;
