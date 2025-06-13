@@ -39,10 +39,10 @@ localparam ROUTER1 = 2'b01;
 localparam ROUTER2 = 2'b10;
 localparam ROUTER3 = 2'b11;
 
-reg [SEQ_NUM_WIDTH - 1:0] router0_rn_ack_pkt;
-reg [SEQ_NUM_WIDTH - 1:0] router1_rn_ack_pkt;
-reg [SEQ_NUM_WIDTH - 1:0] router2_rn_ack_pkt;
-reg [SEQ_NUM_WIDTH - 1:0] router3_rn_ack_pkt;
+reg [SEQ_NUM_WIDTH - 1:0] router0_rn_ack_recv;
+reg [SEQ_NUM_WIDTH - 1:0] router1_rn_ack_recv;
+reg [SEQ_NUM_WIDTH - 1:0] router2_rn_ack_recv;
+reg [SEQ_NUM_WIDTH - 1:0] router3_rn_ack_recv;
 
 reg [SEQ_NUM_WIDTH - 1:0] router0_sn_send;
 reg [SEQ_NUM_WIDTH - 1:0] router1_sn_send;
@@ -122,48 +122,6 @@ always @(*) begin
         end
         WAIT_ACK_PKT: begin
             next_state = (valid_ack_pkt_recv && wait_ack_pkt_recv) ? READ_ACK_PKT : WAIT_ACK_PKT;
-            if (valid_ack_pkt_recv && wait_ack_pkt_recv) begin
-                case(src_dfx_ack_pkt_recv)
-                    ROUTER0: begin
-                        if (router0_rn_ack_pkt == router0_sn_send) begin
-                            next_state = REPLAY_SENT_PKT;
-                        end
-                        else begin
-                            next_state = IDLE;
-                        end
-                    end
-                    ROUTER1: begin
-                        if (router1_rn_ack_pkt == router1_sn_send) begin
-                            next_state = REPLAY_SENT_PKT;
-                        end
-                        else begin
-                            next_state = IDLE;
-                        end
-                    end
-                    ROUTER2: begin
-                        if (router2_rn_ack_pkt == router2_sn_send) begin
-                            next_state = REPLAY_SENT_PKT;
-                        end
-                        else begin
-                            next_state = IDLE;
-                        end
-                    end
-                    ROUTER3: begin
-                        if (router3_rn_ack_pkt == router3_sn_send) begin
-                            next_state = REPLAY_SENT_PKT;
-                        end
-                        else begin
-                            next_state = IDLE;
-                        end
-                    end
-                    default: begin
-                        next_state = IDLE; // Default case if no valid source DFX
-                    end
-                endcase
-            end
-            else begin
-                next_state = WAIT_ACK_PKT;
-            end
         end
         READ_ACK_PKT: begin
             next_state = REPLAY_SENT_PKT;
@@ -245,7 +203,7 @@ always @(posedge clk or negedge rst_n) begin
     end
 end
 /***************************************************************
- * Output logic: recv controller interface
+ * Output logic: recv controller interface 
  **************************************************************/
 always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
@@ -302,65 +260,11 @@ always @(posedge clk or negedge rst_n) begin
         endcase
     end 
 end
-always @(*) begin
-    if(valid_ack_pkt_recv && wait_ack_pkt_recv) begin
-        case(src_dfx_ack_pkt_recv)
-            WAIT_ACK_PKT: begin
-                
-            end
-        endcase
+always @(posedge clk or negedge rst_n) begin
+    if(!rst_n) begin
+        
     end
 end
-// always @(posedge clk or negedge rst_n) begin
-//     if (!rst_n) begin
-//         router0_rn_ack_pkt <= 0;
-//         router1_rn_ack_pkt <= 0;
-//         router2_rn_ack_pkt <= 0;
-//         router3_rn_ack_pkt <= 0;
-//     end
-//     else begin
-//         if(valid_ack_pkt_recv && wait_ack_pkt_recv) begin
-//             case(src_dfx_ack_pkt_recv)
-//                 ROUTER0: begin
-//                     router0_rn_ack_pkt <= rn_ack_pkt_recv;
-//                     router1_rn_ack_pkt <= router1_rn_ack_pkt;
-//                     router2_rn_ack_pkt <= router2_rn_ack_pkt;
-//                     router3_rn_ack_pkt <= router3_rn_ack_pkt;
-//                 end
-//                 ROUTER1: begin
-//                     router1_rn_ack_pkt <= rn_ack_pkt_recv;
-//                     router0_rn_ack_pkt <= router0_rn_ack_pkt;
-//                     router2_rn_ack_pkt <= router2_rn_ack_pkt;
-//                     router3_rn_ack_pkt <= router3_rn_ack_pkt;
-//                 end
-//                 ROUTER2: begin
-//                     router2_rn_ack_pkt <= rn_ack_pkt_recv;
-//                     router0_rn_ack_pkt <= router0_rn_ack_pkt;
-//                     router1_rn_ack_pkt <= router1_rn_ack_pkt;
-//                     router3_rn_ack_pkt <= router3_rn_ack_pkt;
-//                 end
-//                 ROUTER3: begin
-//                     router3_rn_ack_pkt <= rn_ack_pkt_recv;
-//                     router0_rn_ack_pkt <= router0_rn_ack_pkt;
-//                     router1_rn_ack_pkt <= router1_rn_ack_pkt;
-//                     router2_rn_ack_pkt <= router2_rn_ack_pkt;
-//                 end
-//                 default: begin
-//                     router0_rn_ack_pkt <= router0_rn_ack_pkt;
-//                     router1_rn_ack_pkt <= router1_rn_ack_pkt;
-//                     router2_rn_ack_pkt <= router2_rn_ack_pkt;
-//                     router3_rn_ack_pkt <= router3_rn_ack_pkt;
-//                 end
-//             endcase
-//         end
-//         else begin
-//             router0_rn_ack_pkt <= router0_rn_ack_pkt;
-//             router1_rn_ack_pkt <= router1_rn_ack_pkt;
-//             router2_rn_ack_pkt <= router2_rn_ack_pkt;
-//             router3_rn_ack_pkt <= router3_rn_ack_pkt;
-//         end
-//     end
-// end
 
 /***************************************************************
  * Output logic: encapsulate packet interface
@@ -392,16 +296,16 @@ always @(posedge clk or negedge rst_n) begin
             ENCAP_PKT: begin
                 case (router_dst_dfx_reg)
                     ROUTER0: begin
-                        router0_sn_send <= router0_rn_ack_pkt;
+                        router0_sn_send <= router0_rn_ack_recv;
                     end
                     ROUTER1: begin
-                        router1_sn_send <= router1_rn_ack_pkt;
+                        router1_sn_send <= router1_rn_ack_recv;
                     end
                     ROUTER2: begin
-                        router2_sn_send <= router2_rn_ack_pkt;
+                        router2_sn_send <= router2_rn_ack_recv;
                     end
                     ROUTER3: begin
-                        router3_sn_send <= router3_rn_ack_pkt;
+                        router3_sn_send <= router3_rn_ack_recv;
                     end
                     default: begin
                         router0_sn_send <= router0_sn_send;
