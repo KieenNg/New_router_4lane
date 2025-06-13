@@ -20,11 +20,21 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module tb_sim2router(
+module tb_sim4router(
 
     );
     reg clk;
     reg rst_n;
+    
+    reg router0_start_req;
+    reg [9:0]router0_scr_addr;
+    reg [9:0]router0_dst_addr;
+    reg [1:0]router0_src_dfx;
+    reg [1:0]router0_dst_dfx;
+    wire valid_v_recv_0;
+    wire [9:0]src_dfx_0;
+    reg check_recv_done_0;
+    wire router_send_done_0;
     
     reg router1_start_req;
     reg [9:0]router1_scr_addr;
@@ -47,6 +57,17 @@ module tb_sim2router(
     reg check_recv_done_2;
     wire router_send_done_2;
     
+    
+    reg router3_start_req;
+    reg [9:0]router3_scr_addr;
+    reg [9:0]router3_dst_addr;
+    reg [1:0]router3_src_dfx;
+    reg [1:0]router3_dst_dfx;
+    wire valid_v_recv_3;
+    wire [9:0]src_dfx_3;
+    reg check_recv_done_3;
+    wire router_send_done_3;
+    
     sim2router_wrapper sim2router_wrapper_i(
         .*
     );
@@ -64,7 +85,6 @@ module tb_sim2router(
     end  
 
     initial begin 
-            check_recv_done_2 = 0;
          router1_start_req = 0;
          repeat(10) @(posedge clk);
          router1_start_req = 1;
@@ -74,15 +94,24 @@ module tb_sim2router(
          router1_dst_dfx = 2'b10;
          repeat(2) @(posedge clk);
          router1_start_req = 0;
-
-        //  router_scr_addr = 10'h0;
-        //  router_dst_addr = 10'h0;
-        //  repeat(50) @(posedge clk);
-        //  router_start_req = 1;
-        //  router_scr_addr = 10'h0;
-        //  router_dst_addr = 10'h7;
-        //  router_src_dfx = 2'b01;
-        //  router_dst_dfx = 2'b11;
+         
+        repeat(1) @(posedge router_send_done_1);
+        router1_start_req = 1;
+         router1_scr_addr = 10'h2;
+         router1_dst_addr = 10'h7;
+         router1_src_dfx = 2'b01;
+         router1_dst_dfx = 2'b00;
+         repeat(2) @(posedge clk);
+         router1_start_req = 0;
+            
+         repeat(1) @(posedge router_send_done_1);
+         router1_start_req = 1;
+         router1_scr_addr = 10'h3;
+         router1_dst_addr = 10'h9;
+         router1_src_dfx = 2'b01;
+         router1_dst_dfx = 2'b11;
+         repeat(2) @(posedge clk);
+         router1_start_req = 0;
          repeat(500) @(posedge clk);
          $finish;
      end 

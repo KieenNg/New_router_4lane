@@ -593,4 +593,20 @@ always @(posedge clk or negedge rst_n) begin
         endcase
     end
 end
+
+always @(posedge clk or negedge rst_n) begin
+    if(!rst_n) begin
+        router_send_done <= 0;
+    end
+    else begin
+        case (current_state)
+            IDLE: begin
+                router_send_done <= 1;
+            end
+            default: begin
+                router_send_done <= 0;
+            end
+        endcase
+    end
+end
 endmodule
